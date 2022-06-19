@@ -16,10 +16,7 @@ package com.facebook.presto.sql.analyzer;
 import com.facebook.airlift.json.JsonCodec;
 import com.facebook.presto.Session;
 import com.facebook.presto.common.QualifiedObjectName;
-import com.facebook.presto.common.type.ArrayType;
-import com.facebook.presto.common.type.RealType;
-import com.facebook.presto.common.type.RowType;
-import com.facebook.presto.common.type.StandardTypes;
+import com.facebook.presto.common.type.*;
 import com.facebook.presto.connector.informationSchema.InformationSchemaConnector;
 import com.facebook.presto.connector.system.SystemConnector;
 import com.facebook.presto.execution.warnings.WarningCollectorConfig;
@@ -69,6 +66,7 @@ import java.util.function.Consumer;
 
 import static com.facebook.presto.common.type.BigintType.BIGINT;
 import static com.facebook.presto.common.type.DoubleType.DOUBLE;
+import static com.facebook.presto.common.type.IntegerType.INTEGER;
 import static com.facebook.presto.common.type.TypeSignature.parseTypeSignature;
 import static com.facebook.presto.common.type.VarcharType.VARCHAR;
 import static com.facebook.presto.metadata.MetadataManager.createTestMetadataManager;
@@ -152,6 +150,28 @@ public class AbstractAnalyzerTest
 
         catalogManager.registerCatalog(createTestingCatalog(SECOND_CATALOG, SECOND_CONNECTOR_ID));
         catalogManager.registerCatalog(createTestingCatalog(THIRD_CATALOG, THIRD_CONNECTOR_ID));
+
+        SchemaTableName lineitem = new SchemaTableName("s1", "lineitem");
+        inSetupTransaction(session -> metadata.createTable(session, TPCH_CATALOG,
+                new ConnectorTableMetadata(lineitem, ImmutableList.of(
+                        new ColumnMetadata("L_ORDERKEY", BIGINT),
+                        new ColumnMetadata("L_PARTKEY", INTEGER),
+                        new ColumnMetadata("L_SUPPKEY", INTEGER),
+                        new ColumnMetadata("L_LINENUMBER", INTEGER),
+                        new ColumnMetadata("L_QUANTITY", INTEGER),
+                        new ColumnMetadata("L_EXTENDEDPRICE", DOUBLE),
+                        new ColumnMetadata("L_DISCOUNT", DOUBLE),
+                        new ColumnMetadata("L_TAX", DOUBLE),
+                        new ColumnMetadata("L_RETURNFLAG", VARCHAR),
+                        new ColumnMetadata("L_LINESTATUS", VARCHAR),
+                        new ColumnMetadata("L_SHIPDATE", DateType.DATE),
+                        new ColumnMetadata("L_COMMITDATE", DateType.DATE),
+                        new ColumnMetadata("L_RECEIPTDATE", DateType.DATE),
+                        new ColumnMetadata("L_SHIPINSTRUCT",VARCHAR),
+                        new ColumnMetadata("L_SHIPMODE",VARCHAR),
+                        new ColumnMetadata("L_COMMENT",VARCHAR)
+                )),
+                false));
 
         SchemaTableName table1 = new SchemaTableName("s1", "t1");
         inSetupTransaction(session -> metadata.createTable(session, TPCH_CATALOG,
